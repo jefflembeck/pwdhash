@@ -13,6 +13,13 @@
  * Initialize page with default hashing parameters.
  */
 
+var readline = require('readline');
+
+var rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
 var SPH_DomainExtractor = require('./lib/domain-extractor');
 var SPH_HashedPassword = require('./lib/hashed-password');
 var SPH_kPasswordPrefix = "@@";
@@ -31,7 +38,10 @@ function Generate(uri, data)
 }
 
 
-var uri = process.argv[2];
-var pwd = process.argv[3];
+rl.question('URL: ', function(uri){
+  rl.question('Password: ', function(pwd){
+    console.log(Generate(uri, pwd));
+    process.exit(0);
+  });
+});
 
-console.log(Generate(uri, pwd));
