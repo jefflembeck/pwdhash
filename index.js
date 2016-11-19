@@ -15,14 +15,27 @@
 
 var readline = require('readline');
 
+var SPH_DomainExtractor = require('./lib/domain-extractor');
+var SPH_HashedPassword = require('./lib/hashed-password');
+var SPH_kPasswordPrefix = "@@";
+
+
 var rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
 
-var SPH_DomainExtractor = require('./lib/domain-extractor');
-var SPH_HashedPassword = require('./lib/hashed-password');
-var SPH_kPasswordPrefix = "@@";
+rl.on('sigint', () => {
+  rl.close();
+});
+
+
+rl.question('URL: ', function(uri){
+  hidden('Password: ', function(pwd){
+    console.log(Generate(uri, pwd));
+    process.exit(0);
+  });
+});
 
 /*
  * Returns a conforming hashed password generated from the form's field values.
@@ -37,11 +50,28 @@ function Generate(uri, data)
   return result;
 }
 
+function hidden (pw, cb) {
+  const stdin = process.openStdin();
+  var i = 0;
 
-rl.question('URL: ', function(uri){
-  rl.question('Password: ', function(pwd){
-    console.log(Generate(uri, pwd));
-    process.exit(0);
+  process.stdin.on('data', char => {
+    char = char + '';
+    switch (char) {
+      case '\n':
+      case '\r':
+      case '\u0004':
+        stdin.pause();
+        break;
+      default:
+        process.stdout.write("\033[2K\033[200D"+pw+"");
+        i++;
+        break;
+    }
   });
-});
 
+  rl.question(pw, value => {
+    rl.history = rl.history.slice(1);
+    cb(value);
+  })
+
+}
