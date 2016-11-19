@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 /*
  * Remote PwdHash
  * A JavaScript implementation of the PwdHash hashing algorithm.
